@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  # 1. DATABASE COMPONENT LAYER (MySQL)
+  db:
+    image: mysql:8.0
+    container_name: smartlearn-mysql-db
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'softwarearchitecture'
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes' # Matches your DBConnection configuration (PASSWORD = "")
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  # 2. APPLICATION WEB TIER LAYER (Tomcat)
+  web:
+    build: .
+    container_name: smartlearn-app-container
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      # Instructs the app to look for the container host alias "db" instead of "localhost"
+      - DB_HOST=db 
+    depends_on:
+      - db
+
+volumes:
+  mysql_data:
